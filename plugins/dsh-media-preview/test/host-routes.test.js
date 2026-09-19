@@ -111,12 +111,13 @@ async function serve(ctx, routes) {
 }
 
 function fixture() {
-  /* realpathSync 不是可选的：mkdtempSync(tmpdir()) 可能返回**非规范化**的路径。
-     在 GitHub 的 Windows runner 上 TEMP 会解析成 8.3 短名（C:\Users\RUNNER~1\...），
-     而插件会把允许根规范化成长名。两者字符串不等，于是下面「被测工作区应出现在
-     允许根里」和工具输出里的路径断言全部假失败 —— 日志打印出来的是插件那份**看起来
-     完全正确**的路径，极易误判成插件有问题。统一成规范形式后再比。 */
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), 'dsh-media-e2e-')));
+  /* realpathSync.native 不是可选的，而且必须用 .native。
+     普通 realpathSync 在 Windows 上**不展开 8.3 短名**：GitHub runner 的 TEMP 是
+     C:\Users\RUNNER~1\... 短名，插件输出的是 C:\Users\runneradmin\... 长名，
+     于是凡是拿 f.dir 派生出去和插件输出比的地方都假失败（日志里打印的却是插件那份
+     **看起来完全正确**的路径，极易误判成插件有问题）。
+     .native 走 GetFinalPathNameByHandleW，返回规范长名，两边才对得上。 */
+  const dir = realpathSync.native(mkdtempSync(join(tmpdir(), 'dsh-media-e2e-')));
   mkdirSync(join(dir, 'out'), { recursive: true });
   const bytes = Buffer.alloc(2048);
   for (let i = 0; i < bytes.length; i++) bytes[i] = i % 251;
