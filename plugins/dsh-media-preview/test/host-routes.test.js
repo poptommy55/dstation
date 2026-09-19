@@ -13,21 +13,35 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync, realpathSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, realpathSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { apply } from '../index.js';
 
 /* 路径比较必须按**文件系统身份**来，不能按字符串来。
-   Windows 上同一条路径有多种等价写法：8.3 短名（C:\Users\RUNNER~1\...）与长名、
-   目录符号链接、反斜杠与正斜杠、盘符大小写。GitHub 的 runner 恰好会命中这类差异，
-   结果是本机通过、CI 上假失败 —— 而且失败信息里打印的是插件那份**看起来完全正确**
-   的路径，极易被误判成插件有 bug。先各自 realpath 再比，两边才是同一个东西。 */
+   Windows 上同一条路径有多种等价写法：8.3 短名与长名、目录符号链接、反斜杠与正斜杠、
+   盘符大小写。GitHub 的 runner 恰好命中：它的 TEMP 是 C:\Users\RUNNER~1\... 短名，
+   而插件输出的允许根是 C:\Users\runneradmin\... 长名 —— 本机通过、CI 假失败的根源。
+
+   ⚠️ 坑：realpathSync（JS 版）**不展开 8.3 短名**，实测 C:\PROGRA~1 原样返回，
+   所以第一版用它修的没生效。要用 realpathSync.native（走 GetFinalPathNameByHandleW）。 */
 function canon(p) {
   let s = String(p);
-  try { s = realpathSync(s); } catch { /* 路径可能尚不存在，保持原样 */ }
+  try { s = realpathSync.native(s); } catch { /* 路径可能尚不存在，保持原样 */ }
   return s.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+}
+
+/* 最可靠的是直接问文件系统"这是不是同一个目录"：同一目录的 ino/dev 必然相同，
+   与它被写成短名还是长名无关（实测 C:\PROGRA~1 与 C:\Program Files 的 ino 相同）。 */
+function sameDir(a, b) {
+  try {
+    const sa = statSync(a);
+    const sb = statSync(b);
+    return sa.ino === sb.ino && sa.dev === sb.dev;
+  } catch {
+    return canon(a) === canon(b);
+  }
 }
 
 /** 最小 Cordis ctx 桩：只提供 index.js 真正用到的那几个面。 */
@@ -149,7 +163,7 @@ test('e2e: /allow 正常放行工作区内的媒体并给出 URL', async () => {
     // 所以数量不固定；要断言的是"被测工作区确实在名单里"且格式统一。
     assert.ok(body.roots.length >= 1, '至少要有一个允许根');
     assert.ok(
-      body.roots.some((r) => canon(r) === canon(f.dir)),
+      body.roots.some((r) => sameDir(r, f.dir)),
       `被测工作区应出现在允许根里：期望 ${canon(f.dir)}；实际 ${JSON.stringify(body.roots.map(canon))}`
     );
     assert.equal(body.roots.some((r) => r.includes('\\')), false, '允许根统一用正斜杠');
