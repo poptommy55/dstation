@@ -33,10 +33,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -86,10 +86,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
 
@@ -155,7 +155,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Scan for common secret shapes
         shell: pwsh
@@ -178,11 +178,13 @@ jobs:
 
           # Files that legitimately contain the pattern strings themselves, or
           # that produce random false positives:
-          #   - ci.yml          : this scanner cannot scan its own pattern list
-          #   - CONTRIBUTING.md : documents the shapes contributors must not commit
-          #   - SECURITY.md     : documents the same shapes
+          #   - ci.yml             : this scanner cannot scan its own pattern list
+          #   - check-secrets.mjs  : the same, for the node version of this scanner
+          #   - CONTRIBUTING.md    : documents the shapes contributors must not commit
+          #   - SECURITY.md        : documents the same shapes
           $allowlist = @(
             'ci.yml',
+            'check-secrets.mjs',
             'CONTRIBUTING.md',
             'SECURITY.md',
             'CODE_OF_CONDUCT.md'
