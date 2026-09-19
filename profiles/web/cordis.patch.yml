@@ -3,8 +3,8 @@
 # overrides, disables, and insert lists; `!!js` expressions allowed).
 
 # 修复：第三方插件的 fs 通道不传会话策略，退化到部署级默认（workspaceRoot=进程cwd）。
-# 把部署级可写根指到工作区 D:/DSH/DH，让 dsh-office-tools 等插件能在工作区内写文件。
-# 注意：工作区换路径时这里要同步改。mode 必须显式写，防止覆盖合并后退化成 read-only。
+# 部署级可写根跟随 DSH_HOME（回退到进程 cwd），换机/换盘符都不需要改这里。
+# mode 必须显式写，防止覆盖合并后退化成 read-only。
 #
 # 2026-09-19 补充：这条 workspaceRoot 只是「兜底」，不是根治。dsh-office-tools 的
 # saveOfficeText 原先没把会话策略透传给 ctx.fs.writeText，于是沙箱拿不到会话 cwd，
@@ -15,7 +15,7 @@
 - id: sandbox-policy
   config:
     mode: workspace-write
-    workspaceRoot: "D:/DSH/DH"
+    workspaceRoot: !!js process.env.DSH_HOME || process.cwd()
 
 # 关闭插件市场的"宿主重启"能力：市场重启会杀掉 dsh 服务进程，
 # 而 launcher 与该进程绑定，会导致窗口空白。重启交给 launcher 看门狗管理。

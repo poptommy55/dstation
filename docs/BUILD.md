@@ -94,6 +94,33 @@ touches `plugins/`, because the most common way to break D-STATION is a plugin
 that declares `dsh.client` without shipping a client bundle — that stops the
 whole runtime from composing, not just that one plugin.
 
+Then prove the bundle actually runs:
+
+```powershell
+node scripts/smoke-test.mjs
+```
+
+This boots the bundled sidecar on a scratch port (never 3080, so it will not
+disturb a running instance), waits for its tokenised URL, follows the
+authentication redirect, and checks that the web UI comes back as HTML.
+
+A structurally complete bundle is **not** evidence that the app works — it can
+be missing a plugin the profile references and still pass every static check.
+That is exactly what happened the first time this repository was built from
+scratch, and the failure only appeared at boot:
+
+```
+cannot resolve profile bundle "dshmarket" from the dsh installation or <profile>
+```
+
+Two details worth knowing if you write your own probe:
+
+- A bare `GET /` returns **401**. That means the server is up and wants a token,
+  not that it failed to start. Request the tokenised URL instead.
+- That URL answers **303** and sets a cookie; the page itself is served against
+  the cookie. `fetch()` does not keep a cookie jar across redirects, so the
+  redirect has to be followed by hand.
+
 ## What this build does and does not produce
 
 **It produces** a working bundle containing the shell, the kernel, this
