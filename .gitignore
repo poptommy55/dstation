@@ -26,6 +26,7 @@ node_modules/
 # Build outputs (never committed; regenerate with the build scripts)
 # ------------------------------------------------------------------------------
 dist/
+dist-*/
 out/
 build/output/
 

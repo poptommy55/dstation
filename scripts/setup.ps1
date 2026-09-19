@@ -74,9 +74,34 @@ if (-not (Test-Path -LiteralPath $pkgPath)) {
 }
 
 Write-Host "[1/2] Installing Electron and the DSH kernel (this downloads ~150 MB)..."
+
+# Resolve an npm entry point that survives being called from a script.
+#
+# Do NOT call `& npm` here. On Windows `npm` resolves to npm.ps1, which rebuilds the
+# argument list by parsing the original command text and stripping
+# $MyInvocation.InvocationName.Length characters off the front. Invoked through the
+# call operator the text still carries its leading "& ", so the offset lands two
+# characters too far: the first letters of "install" are eaten and npm fails with a
+# baffling "Unknown command: pm". npm.cmd is an ordinary batch shim and has no such
+# problem, so prefer it and fall back to invoking the CLI through node.
+function Get-NpmInvocation {
+    $cmd = Get-Command npm.cmd -ErrorAction SilentlyContinue
+    if ($cmd) { return @{ Exe = $cmd.Source; Prefix = @() } }
+
+    $nodeExe = (Get-Command node).Source
+    $cli = Join-Path (Split-Path -Parent $nodeExe) 'node_modules\npm\bin\npm-cli.js'
+    if (Test-Path -LiteralPath $cli) { return @{ Exe = $nodeExe; Prefix = @($cli) } }
+
+    $any = Get-Command npm -ErrorAction SilentlyContinue
+    if ($any) { return @{ Exe = $any.Source; Prefix = @() } }
+
+    throw 'Could not locate npm. Install Node.js and make sure npm is on PATH.'
+}
+
+$npmInvocation = Get-NpmInvocation
 Push-Location $VendorDir
 try {
-    & npm install --no-audit --no-fund --save-exact "electron@$($deps.electron)" "@deepseek-ai/dsh@$($deps.dsh)"
+    & $npmInvocation.Exe @($npmInvocation.Prefix) install --no-audit --no-fund --save-exact "electron@$($deps.electron)" "@deepseek-ai/dsh@$($deps.dsh)"
     if ($LASTEXITCODE -ne 0) { throw "npm install failed with exit code $LASTEXITCODE" }
 }
 finally {

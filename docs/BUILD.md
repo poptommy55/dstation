@@ -159,7 +159,25 @@ macOS, Linux and ARM64 would each need a separate build pipeline.
 | --- | --- |
 | `setup.ps1` says Node is too old | The kernel needs 22.19+; upgrade Node |
 | `electron.exe` missing after setup | Proxy or mirror blocked the download; set `ELECTRON_MIRROR` as above |
+| `Unknown command: "pm"` from npm | You called `& npm` from a script. On Windows `npm` resolves to `npm.ps1`, which rebuilds its argument list by stripping `$MyInvocation.InvocationName.Length` characters off the parsed command text; the call operator's leading `& ` shifts that offset by two and eats the start of the subcommand. Use `npm.cmd`, which `setup.ps1` already prefers |
 | `build.ps1` says prerequisites missing | `setup.ps1` did not finish; re-run it |
 | App exits immediately, log says the bundle is incomplete | `runtime/node/node.exe` or `app/node_modules` is missing; re-run `build.ps1` |
+| `cannot resolve profile bundle "<pkg>"` at boot | `profiles/web/package.json` lists a bundle that is not installed. Either install that package (`dsh plugin --profile web add <pkg>`) or remove it from `dependencies` and `dsh.profile.bundles` |
 | Window never appears on second launch | An instance is already in the tray. Quit it from the tray first |
 | First launch seems hung | It is assembling the plugin tree; give it up to 3 minutes and watch `dist\launcher.log` |
+
+## Verification performed when this repository was published
+
+Recorded so a future maintainer knows what was actually checked, as opposed to
+what merely looked fine:
+
+| Step | Result |
+| --- | --- |
+| `setup.ps1` into an empty vendor directory | 535 packages in 39 s; Electron's postinstall did not fetch the binary, the explicit repair step did |
+| `build.ps1` from that vendor | 1070 MB, 28,051 files, 12 plugins, 5 skills |
+| `smoke-test.mjs` | sidecar served the UI: 3.1 s, HTTP 200, ~26 KB of HTML |
+| `dsh-launcher.exe` launched by hand | service ready in 2 s, window shown at 5 s, brand injection applied |
+| Plugin test suites (all six) | 126 / 177 / 132 / 37 / 69 assertions, all passing |
+
+Not verified: a build on a machine that has never had D-STATION installed, and
+the ACES skill end to end (that needs a real ACES key).
