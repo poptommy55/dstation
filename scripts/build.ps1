@@ -228,4 +228,4 @@ if ($broken.Count -gt 0) {
 }
 
 Write-Host ''
-Write-Host 'Done. Next: pwsh -File scripts/start.ps1'
+Write-Host 'Done. Next: powershell -ExecutionPolicy Bypass -File scripts/start.ps1'

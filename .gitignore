@@ -18,6 +18,7 @@
 # Dependencies
 # ------------------------------------------------------------------------------
 node_modules/
+.vendor/
 .pnpm-store/
 .pnpm-debug.log*
 

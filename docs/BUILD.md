@@ -3,10 +3,17 @@
 D-STATION builds on Windows only. The build is three commands:
 
 ```powershell
-pwsh -File scripts/setup.ps1     # fetch Electron, the DSH kernel, a Node runtime
-pwsh -File scripts/build.ps1     # assemble dist\
-pwsh -File scripts/start.ps1     # run it
+powershell -ExecutionPolicy Bypass -File scripts/setup.ps1     # fetch Electron, the DSH kernel, a Node runtime
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1     # assemble dist\
+powershell -ExecutionPolicy Bypass -File scripts/start.ps1     # run it
 ```
+
+## Shell
+
+The scripts target **Windows PowerShell 5.1 or newer**, so the built-in
+`powershell` works and PowerShell 7 (`pwsh`) is not required. The examples below
+use `powershell -ExecutionPolicy Bypass -File`; `-ExecutionPolicy Bypass` matters
+because the default Windows execution policy blocks unsigned `.ps1` files.
 
 ## Requirements
 
@@ -32,7 +39,7 @@ There is no pnpm or git requirement for a plain build.
    ```powershell
    $env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
    Remove-Item -Recurse -Force .vendor\node_modules\electron
-   pwsh -File scripts/setup.ps1
+   powershell -ExecutionPolicy Bypass -File scripts/setup.ps1
    ```
 4. Downloads the official portable Node 22 x64 runtime into `.vendor/node-runtime/`.
 
@@ -62,7 +69,7 @@ shell falls back to development mode and the bundle will not start.
 ## Running
 
 ```powershell
-pwsh -File scripts/start.ps1
+powershell -ExecutionPolicy Bypass -File scripts/start.ps1
 ```
 
 The first launch takes roughly **1–3 minutes**: DSH has to assemble the plugin

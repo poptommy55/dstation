@@ -100,7 +100,7 @@ Electron's binary download failed (exit code $LASTEXITCODE).
 If you are behind a slow or filtered network, set a mirror and retry:
   `$env:ELECTRON_MIRROR = 'https://npmmirror.com/mirrors/electron/'
   Remove-Item -Recurse -Force '$VendorDir\node_modules\electron'
-  pwsh -File scripts/setup.ps1
+  powershell -ExecutionPolicy Bypass -File scripts/setup.ps1
 "@
         }
     }
@@ -161,4 +161,4 @@ foreach ($c in $checks) {
 if ($failed) { throw 'Setup finished but expected files are missing.' }
 
 Write-Host ''
-Write-Host 'Done. Next: pwsh -File scripts/build.ps1'
+Write-Host 'Done. Next: powershell -ExecutionPolicy Bypass -File scripts/build.ps1'
