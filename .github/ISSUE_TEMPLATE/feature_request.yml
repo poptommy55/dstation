@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest a new capability or an improvement to D-STATION.
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. Describing the problem first — before the solution — makes a
+        request much easier to evaluate, because there may be a simpler fix than the one you have
+        in mind.
+
+        This form is for improvements to D-STATION itself. Questions belong in Discussions.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem you are trying to solve
+      description: What are you trying to do, and where does the current behaviour get in the way? Describe the situation, not the fix.
+      placeholder: |
+        I often ... and there is currently no way to ..., which means I have to ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Your proposed solution
+      description: What would you like D-STATION to do? Be as concrete as you can about the behaviour you want.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any other approaches you thought about, and why you set them aside. Workarounds you already use are useful too.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this concern?
+      description: Pick the closest match.
+      options:
+        - shell
+        - plugins
+        - skills
+        - OTA / updates
+        - docs
+        - other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched the existing feature requests and this is not a duplicate.
+          required: true

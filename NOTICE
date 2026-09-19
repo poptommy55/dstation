@@ -1,0 +1,66 @@
+D-STATION
+Copyright 2026 D-STATION contributors
+
+This product is licensed under the Apache License, Version 2.0.
+See the LICENSE file for the full license text.
+
+--------------------------------------------------------------------------------
+THIRD-PARTY NOTICES
+--------------------------------------------------------------------------------
+
+This product includes software developed by the DeepSeek Harness project.
+
+  Component:  DeepSeek Harness (DSH) agent runtime
+  Package:    @deepseek-ai/dsh
+  Version:    0.1.2-rc.1
+  License:    MIT
+  Upstream:   https://github.com/deepseek-ai/deepseek-harness
+
+  DSH is consumed as an unmodified npm dependency. It is installed at build
+  time and assembled into the application; it is not vendored, forked, or
+  otherwise modified in this repository.
+
+--------------------------------------------------------------------------------
+
+This product includes Electron.
+
+  Component:  Electron
+  Version:    44.2.0
+  License:    MIT
+  Copyright:  Copyright (c) Electron contributors
+              Copyright (c) 2013-2020 GitHub Inc.
+
+--------------------------------------------------------------------------------
+
+This product includes Chromium.
+
+  Component:  Chromium (embedded in Electron)
+  License:    BSD 3-Clause License
+  Copyright:  Copyright (c) The Chromium Authors
+
+--------------------------------------------------------------------------------
+
+The MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+--------------------------------------------------------------------------------
+
+Additional third-party npm packages are consumed as unmodified dependencies of
+this project. Their license texts are shipped with the packages themselves.

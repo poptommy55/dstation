@@ -1,0 +1,11 @@
+{
+  "electron": "44.2.0",
+  "dsh": "0.1.2-rc.1",
+  "nodeRuntime": "22.20.0",
+  "nodeRuntimeUrl": "https://nodejs.org/dist/v22.20.0/node-v22.20.0-win-x64.zip",
+  "_comment": [
+    "Pinned third-party versions. Nothing here is vendored in the repository.",
+    "dsh is currently a release candidate: upstream may change plugin-facing APIs",
+    "between rc builds. Bump it deliberately and re-run the plugin test suites."
+  ]
+}

@@ -1,0 +1,24 @@
+# dsh-wallpaper 的 bundle patch。
+#
+# 这份文件由 package.json 的 `dsh.bundle.patch` 声明。装插件时——
+#
+#   dsh plugin --profile <name> add <包名或路径>
+#
+# ——官方 CLI 会把包与 profile 的 `dsh.profile.bundles` 对账，看到这个声明
+# 就把 `dsh-wallpaper` 追加进 bundle 栈；profile 启动时合并本文件，
+# 等价于以前手动往 profile 的 cordis.patch.yml 里写那几行 mount。
+# **无需编辑任何 profile 文件，一条命令完成安装与挂载。**
+#
+# 本插件也支持"手工部署"（install.ps1 走的就是这条路，不依赖 pnpm）：
+# 它把包放进 %DSH_HOME%\plugins\ 、在 profile 的 node_modules 下建 junction，
+# 并把 `dsh-wallpaper` 追加进 profile package.json 的 `dsh.profile.bundles`。
+# 两条路殊途同归，效果完全一致。
+#
+# ⚠️ 不要**同时**用两条路：profile 的 cordis.patch.yml 里若还留着旧的
+#    手工 mount 行（`- insert: - id: wallpaper / name: dsh-wallpaper`），
+#    会和本文件构成**双重挂载** ⇒ 宿主半注册两次同名路由 ⇒
+#    启动失败（`webserver: duplicate exact route "/dsh-wallpaper/config"`）。
+#    切换方式之前先删掉那一行。
+- insert:
+    - id: wallpaper
+      name: 'dsh-wallpaper'

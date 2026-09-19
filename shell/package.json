@@ -1,0 +1,10 @@
+{
+  "name": "dsh-launcher",
+  "productName": "D-STATION",
+  "version": "1.0.0",
+  "main": "main.js",
+  "private": true,
+  "dependencies": {
+    "electron": "^44.2.0"
+  }
+}

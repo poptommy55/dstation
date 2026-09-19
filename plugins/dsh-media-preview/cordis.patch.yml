@@ -1,0 +1,8 @@
+# 把本插件的双面（宿主 + 浏览器）注册进 DSH web profile 的插件树。
+#
+# 说明：这份 patch 由 profile 的 `dsh.profile.bundles` 列表引用（package.json 的
+# `dsh.bundle.patch`）。宿主半是 index.js（挂 /dsh-media 路由），浏览器半是
+# client.js（由 package.json 的 `dsh.client` 声明，web 客户端按需加载）。
+- insert:
+    - id: media-preview
+      name: 'dsh-media-preview'

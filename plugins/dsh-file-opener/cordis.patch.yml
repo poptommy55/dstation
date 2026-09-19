@@ -1,0 +1,9 @@
+# dsh-file-opener 自带补丁：把自己 insert 进插件树。
+#
+# ⚠️ 走 bundle 通道（profile 的 package.json 里 dsh.profile.bundles 含 "dsh-file-opener"）。
+#    如果 profile 自己的 cordis.patch.yml 里**也有**一条手工 insert，
+#    那就是**双重挂载** ⇒ 宿主半注册两次同名路由 ⇒ 插件树崩 + 被看门狗禁用
+#    （见 dsh-plugin-dev 技能坑 #42 与坑 #37）。
+- insert:
+    - id: file-opener
+      name: 'dsh-file-opener'

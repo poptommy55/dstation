@@ -1,0 +1,60 @@
+{
+  "name": "dsh-wallpaper",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "DSH window wallpaper: solid / gradient / image background with translucent sidebar and surfaces, wired through the official --dsw-* token system",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "theme",
+    "wallpaper",
+    "background"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "engines": {
+    "node": ">=18",
+    "dsh": ">=0.1.2-rc.1 <0.2.0"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "@deepseek-ai/cordis": "*",
+    "@deepseek-ai/dsh-host-webserver": "*",
+    "@deepseek-ai/dsh-client-ui-slots": "*",
+    "@deepseek-ai/dsh-client-ui-theme": "*"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": { "optional": true },
+    "@deepseek-ai/dsh-host-webserver": { "optional": true },
+    "@deepseek-ai/dsh-client-ui-slots": { "optional": true },
+    "@deepseek-ai/dsh-client-ui-theme": { "optional": true }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "install.ps1",
+    "uninstall.ps1",
+    "LICENSE",
+    "README.md",
+    "test"
+  ],
+  "scripts": {
+    "test": "node test/run-tests.mjs"
+  }
+}

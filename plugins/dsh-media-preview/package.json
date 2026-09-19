@@ -1,0 +1,47 @@
+{
+  "name": "dsh-media-preview",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "在 DSH 对话里内联预览大模型生成的图片/视频/音频，并一键下载到本机",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "media",
+    "preview",
+    "download"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "mime.js",
+    "path-guard.js",
+    "http-range.js",
+    "cordis.patch.yml",
+    "test",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

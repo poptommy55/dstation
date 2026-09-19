@@ -1,0 +1,19 @@
+{
+  "name": "dsh-knowledge-base",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "知识库智能体（整理师）+ 整理管理侧面板",
+  "main": "index.js",
+  "dsh": {
+    "client": {
+      "inject": ["@deepseek-ai/dsh-client-ui-sidebar"],
+      "platform": "web"
+    }
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  }
+}

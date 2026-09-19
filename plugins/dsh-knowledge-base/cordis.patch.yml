@@ -1,0 +1,8 @@
+# dsh-knowledge-base bundle patch
+#
+# 知识库插件（整理师智能体 + 整理管理侧面板）。
+# 真实加载由 profile 的 cordis.patch.yml 的 insert 行完成（与 agent-maker 同款）；
+# 此文件为 `dsh plugin add` CLI 通道的声明占位，运行时不会重复挂载。
+- insert:
+    - id: knowledge-base
+      name: dsh-knowledge-base

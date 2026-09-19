@@ -1,0 +1,28 @@
+{
+  "name": "dsh-agent-maker",
+  "version": "0.1.0",
+  "description": "Agent Maker / Super Agents 工作台：侧边栏入口 + 对话式智能体编排 + 智能体市场 + 一键打包我的智能体",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ],
+      "platform": "web"
+    }
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "agent-pack.js",
+    "client.js",
+    "templates/",
+    "package.json"
+  ]
+}

@@ -1,0 +1,2 @@
+README 顶部使用 assets/branding/dsh-banner.png 全宽展示。
+仓库标识仍保留 assets/icon.png，供插件图标和其它入口复用。

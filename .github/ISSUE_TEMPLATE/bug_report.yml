@@ -1,0 +1,104 @@
+name: Bug report
+description: Report a reproducible defect in D-STATION.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+
+        Before you continue, please check that this is a **reproducible defect in D-STATION
+        itself** and not a question or a feature idea — those belong in Discussions or the
+        feature request form. Security vulnerabilities must **not** be reported here; see the
+        Security policy link on the previous screen.
+
+        Please remove any personal API key from logs before pasting them below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Short description
+      description: One or two sentences describing the problem.
+      placeholder: When I do X, Y happens instead of Z.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: List the exact steps needed to see the problem. Assume the reader starts the app fresh.
+      placeholder: |
+        1. Start D-STATION
+        2. Open ...
+        3. Click ...
+        4. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs actual behaviour
+      description: What did you expect to happen, and what actually happened?
+      placeholder: |
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+
+  - type: input
+    id: dstation-version
+    attributes:
+      label: D-STATION version
+      description: You can find the version in the application's About dialog, or in `dstation-version.json` in the install root.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: windows-version
+    attributes:
+      label: Windows version
+      description: D-STATION supports Windows 10 and Windows 11, x64 only.
+      options:
+        - Windows 10
+        - Windows 11
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      description: Only relevant if you run from source. Find it with `node --version`.
+      placeholder: "22.x"
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: |
+        Paste any relevant log output. `launcher.log` is located in the install root (the folder
+        containing `dsh-launcher.exe`).
+
+        **Remove any personal API key or token before pasting.** An issue is public and permanent.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched the existing issues and this is not a duplicate.
+          required: true
+        - label: I am running the latest release of D-STATION.
+          required: true
+        - label: I have removed any personal API key from the logs and text pasted above.
+          required: true

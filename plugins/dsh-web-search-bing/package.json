@@ -1,0 +1,31 @@
+{
+  "name": "dsh-web-search-bing",
+  "version": "1.1.0",
+  "description": "Keyless web search provider for the dsh web seam (ctx.web), backed by cn.bing.com. No API key, no DeepSeek dependency. Ships a browser half that exposes its settings in Settings > Plugins.",
+  "type": "module",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "web-search",
+    "bing",
+    "keyless"
+  ],
+  "peerDependencies": {
+    "@deepseek-ai/dsh-web": "*"
+  },
+  "dsh": {
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ],
+      "platform": "web"
+    }
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  }
+}

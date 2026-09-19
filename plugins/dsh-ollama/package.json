@@ -1,0 +1,28 @@
+{
+  "name": "dsh-ollama",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "对接本机 Ollama：动态读取本地模型列表，作为 DSH 可选模型；在「设置 → 模型」中可选择与配置。零第三方依赖。",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "files": [
+    "index.js",
+    "ollama.js",
+    "convert.js",
+    "schema.js",
+    "client.js",
+    "tools",
+    "test"
+  ]
+}

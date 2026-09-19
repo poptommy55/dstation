@@ -1,0 +1,46 @@
+{
+  "name": "dsh-file-opener",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "把对话里的本地文件路径变成可点击入口：用系统默认程序打开（.docx/.xlsx 走 WPS/Office，.html 走浏览器），另提供「在文件夹中显示」",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "file",
+    "open",
+    "clickable-path"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "path-guard.js",
+    "reveal.js",
+    "cordis.patch.yml",
+    "test",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node test/run-tests.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

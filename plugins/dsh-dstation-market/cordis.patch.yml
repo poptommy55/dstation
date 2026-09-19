@@ -1,0 +1,8 @@
+# dsh-dstation-market 的 bundle patch。
+#
+# 由 package.json 的 `dsh.bundle.patch` 声明；安装后 profile 启动时自动合并，
+# 不需要手工编辑 profile 的 cordis.patch.yml（见 dsh-plugin-dev 坑 #42：
+# 这份文件和手工 mount 行**只能二选一**，否则双重挂载、启动失败）。
+- insert:
+    - id: dstation-market
+      name: 'dsh-dstation-market'

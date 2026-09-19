@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: transparent; overflow: hidden;
+    font-family: "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  }
+  img {
+    width: 100vw; height: 100vh;
+    object-fit: contain; display: block;
+    user-select: none; -webkit-user-drag: none;
+  }
+  /* 底部状态胶囊：冷启动慢时告诉用户"没死" */
+  #ds-hud {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+    min-width: 260px; max-width: 78%;
+    background: rgba(16, 18, 24, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 14px;
+    padding: 12px 18px 14px;
+    color: #e8ecf3;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    user-select: none;
+  }
+  #ds-row {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  }
+  #ds-status { font-size: 13px; letter-spacing: .3px; }
+  #ds-time {
+    font-size: 12px; color: #9aa4b2; font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  #ds-track {
+    margin-top: 10px; height: 3px; border-radius: 3px;
+    background: rgba(255, 255, 255, 0.12); overflow: hidden;
+  }
+  #ds-fill {
+    height: 100%; width: 34%; border-radius: 3px;
+    background: linear-gradient(90deg, #3d7eff, #6aa6ff);
+    animation: ds-slide 1.6s ease-in-out infinite;
+  }
+  @keyframes ds-slide {
+    0%   { margin-left: -36%; }
+    100% { margin-left: 100%; }
+  }
+  #ds-tip {
+    margin-top: 8px; font-size: 11px; color: #7f8a99; line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <img src="splash.png" alt="">
+  <div id="ds-hud">
+    <div id="ds-row">
+      <span id="ds-status">正在启动…</span>
+      <span id="ds-time">0.0s</span>
+    </div>
+    <div id="ds-track"><div id="ds-fill"></div></div>
+    <div id="ds-tip">首次启动需要装配环境，请耐心等待</div>
+  </div>
+<script>
+  // 计时从 splash 页面加载开始；主进程调用 window.setStatus() 更新阶段文案
+  var t0 = Date.now();
+  var timeEl = document.getElementById('ds-time');
+  setInterval(function () {
+    timeEl.textContent = ((Date.now() - t0) / 1000).toFixed(1) + 's';
+  }, 100);
+  window.setStatus = function (text, tip) {
+    if (text) document.getElementById('ds-status').textContent = text;
+    if (tip !== undefined) document.getElementById('ds-tip').textContent = tip;
+  };
+</script>
+</body>
+</html>

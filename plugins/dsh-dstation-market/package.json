@@ -1,0 +1,37 @@
+{
+  "name": "dsh-dstation-market",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "D-STATION plugin market: list installed plugins, hot enable/disable, uninstall",
+  "main": "index.js",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": []
+    }
+  },
+  "engines": {
+    "node": ">=18",
+    "dsh": ">=0.1.2-rc.1 <0.2.0"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "installer.js",
+    "exporter.js",
+    "templates",
+    "cordis.patch.yml",
+    "README.md",
+    "test"
+  ]
+}

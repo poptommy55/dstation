@@ -1,0 +1,15 @@
+{
+  "name": "dsh-daily-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "确保「日常使用」分区以相对位置（%DSH_HOME%\\daily-use）存在，与其他插件自建的分区一致。宿主侧单文件，零依赖。",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js"
+  ]
+}

@@ -1,0 +1,105 @@
+# ==============================================================================
+# .gitignore for D-STATION (Node.js / Electron on Windows)
+# ==============================================================================
+#
+# >>> SECRETS BLOCK IS LOAD-BEARING. DO NOT DELETE IT. <<<
+#
+# The entries in the "Secrets and credentials" section below are the only thing
+# standing between a routine `git add .` and a permanently public API key. This
+# repository ships no keys, and users must supply their own model API key at
+# runtime; the moment one is written to disk inside the working tree it is at
+# risk of being committed, pushed, and indexed forever.
+#
+# If you are tempted to remove or "tidy" that block: don't. If you add a new
+# credential file format, add its pattern there too.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Dependencies
+# ------------------------------------------------------------------------------
+node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# Build outputs (never committed; regenerate with the build scripts)
+# ------------------------------------------------------------------------------
+dist/
+out/
+build/output/
+
+# ------------------------------------------------------------------------------
+# Logs
+# ------------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+# ------------------------------------------------------------------------------
+# Runtime and install artifacts — these are NOT source
+# ------------------------------------------------------------------------------
+/runtime/
+/app/
+/electron-data/
+/ota-staging/
+/backups/
+
+# ------------------------------------------------------------------------------
+# OTA / launcher runtime state
+# ------------------------------------------------------------------------------
+dsh-launcher.exe
+launcher.log
+launcher.lock
+ota-index.json
+ota-tx.json
+dstation-version.json
+
+# ------------------------------------------------------------------------------
+# User data (belongs to the person running the app, never to the repository)
+# ------------------------------------------------------------------------------
+home/sessions/
+home/storages/
+home/knowledge-bases/
+home/attachments/
+home/telemetry/
+home/cache/
+
+# ==============================================================================
+# Secrets and credentials  *** LOAD-BEARING — SEE HEADER COMMENT ***
+# ==============================================================================
+.credentials.yaml
+*.aceskey
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+tokens.json
+accounts.json
+
+# ==============================================================================
+# Editor and OS cruft
+# ==============================================================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Windows shell clutter
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Backup and temp files
+*.bak
+*.bak-*
+*.tmp
+*.temp
+~$*
+
+# Misc
+.DS_Store
+coverage/
+*.tsbuildinfo

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and general discussion
+    url: https://github.com/OWNER/dstation/discussions
+    about: Please ask questions and share ideas here instead of opening an issue.
+  - name: Security policy
+    url: https://github.com/OWNER/dstation/security/policy
+    about: Please do NOT report security vulnerabilities here.

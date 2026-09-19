@@ -1,0 +1,26 @@
+# D-STATION — Git attribute rules
+#
+# Normalize text to LF in the repository so the history and diffs are stable
+# across Windows, macOS, and Linux checkouts.
+
+* text=auto eol=lf
+
+# ------------------------------------------------------------------------------
+# Windows scripts must keep CRLF line endings; cmd.exe and some PowerShell
+# tooling behave badly with LF-only script files.
+# ------------------------------------------------------------------------------
+*.ps1   text eol=crlf
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# ------------------------------------------------------------------------------
+# Binary assets — never diff, never convert
+# ------------------------------------------------------------------------------
+*.png   binary
+*.ico   binary
+*.jpg   binary
+
+# ------------------------------------------------------------------------------
+# Lockfiles: generated, and diff noise on every dependency change
+# ------------------------------------------------------------------------------
+pnpm-lock.yaml  -diff linguist-generated=true

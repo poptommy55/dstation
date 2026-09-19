@@ -1,0 +1,237 @@
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+
+# 修复：第三方插件的 fs 通道不传会话策略，退化到部署级默认（workspaceRoot=进程cwd）。
+# 把部署级可写根指到工作区 D:/DSH/DH，让 dsh-office-tools 等插件能在工作区内写文件。
+# 注意：工作区换路径时这里要同步改。mode 必须显式写，防止覆盖合并后退化成 read-only。
+#
+# 2026-09-19 补充：这条 workspaceRoot 只是「兜底」，不是根治。dsh-office-tools 的
+# saveOfficeText 原先没把会话策略透传给 ctx.fs.writeText，于是沙箱拿不到会话 cwd，
+# 落到这个部署根上；只要会话工作区不在 D:/DSH/DH 下，word_*/excel_* 的**写**一律
+# FS_SANDBOX_DENIED（读不受影响）。已在插件侧补上策略透传
+# （lib/index.js 的 officeSandboxPolicy + writeText 第 5 参），本文件保持不变即可；
+# 若某次会话工作区又不在下面这个根下且插件补丁丢失，可临时把该值改成对应工作区救急。
+- id: sandbox-policy
+  config:
+    mode: workspace-write
+    workspaceRoot: "D:/DSH/DH"
+
+# 关闭插件市场的"宿主重启"能力：市场重启会杀掉 dsh 服务进程，
+# 而 launcher 与该进程绑定，会导致窗口空白。重启交给 launcher 看门狗管理。
+- id: dsh-market
+  config:
+    allowRestart: false
+
+# 免 KEY 网页搜索：官方 provider(deepseek-official) 走 api.deepseek.com，
+# 中转站签发的 KEY 在那里一律 401。改用自研 bing-keyless（抓取 cn.bing.com），
+# 不需要任何 API KEY，也不依赖 DeepSeek。插件代码在 resources 旁的 home 目录里。
+# 恢复官方搜索：把下面三条整体删除即可。
+- id: web
+  config:
+    searchProvider: bing-keyless
+
+- id: web-search-deepseek
+  disabled: true
+
+- insert:
+    - id: web-search-bing
+      name: dsh-web-search-bing
+
+# 智能体工作台插件（dsh-agent-maker）：侧边栏「智能体工作台」footer 入口。
+# 阶段 1 仅注入入口 + 占位面板，验证插件骨架能被 DSH 加载、slot 注册不报错；
+# 后续阶段（#14-#17）接入对话式编排 / SUPER AGENTS 动态列表 / 智能体市场 / 知识库。
+# 卸载：删除下面这条 insert 即可。
+- insert:
+    - id: agent-maker
+      name: dsh-agent-maker
+
+# 知识库智能体（整理师）+ 整理管理侧面板。
+# pill 入口由 dsh-agent-maker 的「知识库」按钮唤起（见其 client.js L504）；
+# 本插件提供 window.__kbOpen（开会话+开管理抽屉）、💾 选中沉淀、摄入引擎。
+# 卸载：删除下面这条 insert 即可。
+- insert:
+    - id: knowledge-base
+      name: dsh-knowledge-base
+
+# composer 底栏「上传图片」按钮。
+# DSH 自带 composer 只有粘贴与拖放两条图片入口，没有任何 input[type=file]；
+# 底栏那个「+」是指令菜单（t("input.commands")），不是上传。
+# 本插件注册进 conversation.input.left（官方预留、无占用者的插件槽位），
+# 选到文件后合成 drop 事件交回 DSH 自己的摄入通道（复用其全部校验与草稿图片栏）。
+# 卸载：删除下面这条 insert 即可。
+- insert:
+    - id: composer-upload
+      name: dsh-composer-upload
+
+# 技能面板（dsh-skill-panel）：侧边栏 footer「技能」入口（order 110，排在
+# 「智能体工作台」之下）。列出 DSH 原生技能目录（remote.skills.list，含插件运行时
+# 注册的，如 univer-*）+ 自扫 home/skills 标注「哪一条可编辑、哪一条没生效」；
+# 支持新建/编辑/删除 SKILL.md，以及一键「新建会话 + 自动发送 /名字」。
+#
+# 为什么需要它：技能在 DSH 里的「安装」就是往 <DSH_HOME>/skills 放一个
+# <name>/SKILL.md（放文件即生效，有 chokidar 监听、不用重启），但原生没有任何
+# 管理 UI —— 这个面板补的就是「发现 + 编辑 + 一键发起」。
+# 依赖：外壳的 __DSTATION_SKILLS__ 桥（build/electron-app/files.js 的 createSkills
+# + main.js 的 dstation:skills:* IPC）。外壳较旧时本插件自动降级为只读模式。
+# 卸载：删除下面这条 insert 即可（技能文件本身不受影响）。另注意知识库插件里那个
+# 「skill（可复用步骤）」导入选项已于同日移除 —— 存进 KB 的 skill 只是笔记，
+# 不会出现在 / 菜单里，也不会被 skill 工具加载。
+- insert:
+    - id: skill-panel
+      name: dsh-skill-panel
+
+# 定时提醒（@deepseek-ai/dsh-schedule）：给会话提供持久提醒能力，
+# 让模型能用 schedule_create / schedule_list / schedule_delete 三个工具
+# 安排「延时后」「绝对时刻」「固定间隔」的提醒，到期后作为同一会话的
+# follow-up 消息回来。用于「黄金原油行情台」每天早上自动出一份日报。
+#
+# 已知边界（来自该包 README，务必不要误解为 cron）：
+#   - every_seconds 是「首次创建的锚点 + 固定间隔」，最短 5 分钟，
+#     **不支持 cron / 日历规则（如"每个工作日 9 点"）**。
+#   - 语义为「距上次触发满 N 秒」的固定速率，不是「每天某个钟点」。
+#     因此「每天早上跑」实际是固定 24h 间隔的近似；跨夏令时或需精确
+#     钟点时会漂移。若要严格按钟点触发，需宿主侧任务计划程序。
+#   - 只有当会话处于 live 且空闲时才会投递；会话关闭/cold 时提醒保持
+#     逾期，直到将来有 live 根 agent 恢复该会话 —— 不会发到会话之外。
+#   - 该包不扫描加载时已 live 的 agent，故启用后需新开会话才生效。
+# 卸载：删除下面这条 insert 即可。
+- insert:
+    - id: schedule
+      name: '@deepseek-ai/dsh-schedule'
+
+# 配套的浏览器侧 UI（只读的「活动提醒」目录）。宿主侧 bundle 里默认
+# 是 disabled: true，这里覆盖为启用，否则提醒只在后台生效、界面上看不到。
+# 该目录仅显示活跃记录，不构成投递回执。
+- id: ui-schedule
+  disabled: false
+
+# dsh-office-tools（给模型的 word_* / excel_* 工具）——2026-09-10 被看门狗自动禁用，
+# 原因是启动时 apply 注册 ppt_create 报「tool "ppt_create" is already registered」，
+# 直接把整个插件树带崩。插件作者为这种共存场景留了开关：
+# enablePptTools 的 description 原文 = "set to false to coexist with a dedicated PPT
+# plugin such as dsh-ppt"。关掉 PPT 两个工具，word_*/excel_* 即可正常加载。
+# 若再次启动失败，看门狗会重新写回 disabled: true（自愈），不会卡死启动。
+- id: dsh-office-tools
+  config:
+    enablePptTools: false
+
+# [auto] 看门狗自动禁用：该插件加载失败导致 dsh 无法启动。
+# 删除下面两行即可恢复；或在插件市场卸载。
+- id: canvas-preview
+  disabled: true
+
+# media-preview：2026-09-13 15:39 被看门狗自动禁用（node_modules 里缺 mime.js /
+# path-guard.js / http-range.js，index.js 一 import 就 ERR_MODULE_NOT_FOUND）。
+# 三个模块已补齐、package.json 的 files 白名单已修正，故移除禁用恢复加载。
+# 若再次加载失败，看门狗会重新写回 disabled: true（自愈），不会卡死启动。
+
+# ui-dsh-web-file-preview（= @wingsky-1/dsh-web-file-preview）：2026-09-13 禁用。
+# 原因不是它自身坏了，而是**它和 media-preview 抢同一片对话流 DOM**：
+#   · media-preview 把正文里的路径文字藏起来、在块后挂自己的卡片；
+#   · 本插件同时嗅探同一段路径，用 fetch → Blob → objectURL 内联渲染（带 AbortSignal）。
+# 一方重建节点 → 另一方的 in-flight 请求被 abort → 生成的图片卡片"闪一下就没了"。
+# 实测判据：禁用后 /api/dsh-file-preview/health 由 200 变 401，/dsh-media/health 仍 200，
+# 重新出图 → 卡片稳定，用户确认「正常了」。
+# 代价：文件预览 Modal / HTML 预览 / Diff / Mermaid 渲染随之关闭。
+# ⚠️ 想恢复本插件，必须先把 media-preview 对同一片 DOM 的处理关掉（同类渲染器只留一个），
+#    否则"闪一下就没"会立刻复现。详见 dsh-plugin-dev 技能「坑 #24」。
+- id: ui-dsh-web-file-preview
+  disabled: true
+
+# 2026-09-14：曾在此挂载过 dsh-minicpm-local（MiniCPM5-2B 本地内嵌模型），
+# 后经用户判定"没有使用价值"，已**完全卸载**：插件源码、node_modules、权重、
+# profile 挂载点、settings 段全部删除。
+# 相关工程教训仍保留在 dsh-plugin-dev 技能的坑清单 #26-#32（那几条与具体模型无关，
+# 对以后接任何原生推理 / 自定义模型都有用）。
+
+# Ollama 本地模型（dsh-ollama）—— 2026-09-14 启用。
+#
+# 干什么：直接对接本机 Ollama，把它里面**已安装的模型动态读出来**，作为 DSH 的
+# 可选模型；在「设置 → 模型 → Ollama（本地）」里可看、可选、可配。
+#
+# 与上一个（已删除的内嵌方案）的关键区别：**模型跑在 Ollama 自己的进程里**，
+# 本插件只做协议翻译 + DSH 注册，因此
+#   · 不把原生库加载进 DSH 进程 ⇒ 没有 CUDA 硬终止 / 反复重启的风险；
+#   · 模型列表是动态读的（GET /api/tags）⇒ 你 `ollama pull` 了新模型，
+#     插件这边自动就能选，不用改任何配置。
+#   · **零第三方依赖**（只用 Node 内置模块）。
+#
+# 前提：Ollama 服务需在运行（默认 http://127.0.0.1:11434）。
+# 注意 Ollama 默认 num_ctx 很小，而 DSH 的 agent 提示词约 18.5K，插件会显式
+# 设置 num_ctx（默认 32768，可配），否则会被静默截断。
+#
+# 参数在「设置 → 模型 → Ollama（本地）」里改，或编辑
+# %DSH_HOME%\settings.yaml 的 ollama: 段。
+# 默认 promptMode='chat'：用短人设替换 DSH 的 agent 人设且不发送工具定义
+# （实测 2B 级模型在 20K tokens 的 agent 提示词下会复述人设/拒绝回答/乱调工具）。
+# 需要 agent 能力时改成 'agent'。
+#
+# 诊断：
+#   GET /dsh-ollama/status   连接状态、版本、模型清单、注册情况
+#   GET /dsh-ollama/models   动态模型列表
+#   GET /dsh-ollama/selftest 走 ctx.llm.stream 的端到端验证（含真实回答）
+# 卸载：删除下面这条 insert 即可。
+- insert:
+    - id: ollama
+      name: dsh-ollama
+
+# 「日常使用」分区的相对位置化（dsh-daily-workspace）—— 2026-09-14 启用。
+#
+# 干什么：确保「日常使用」分区以 **%DSH_HOME%\daily-use** 这个相对位置存在，
+# 与超级智能体/智能体编排/知识库/技能使用那几个插件自建的分区保持一致
+# （它们都是「DSH_HOME + 固定目录名」算出来并幂等创建的，删了会自动重建）。
+# 原先「日常使用」是手动添加的绝对路径（D:\DSH\DH2\实验区），换部署就失效。
+#
+# 做法：宿主侧单文件、零依赖。启动时 mkdir 目录，再调
+# ctx.workspaceRegistry.create(dir, '日常使用') —— create 对同一路径是幂等的
+# （"Repeated calls for the same canonical path return the existing entity
+# without changing its title"），所以每轮启动调用都安全，不会动已有会话归属。
+# ⚠️ 必须先 mkdir：create 要求目录已存在，路径不存在会以原始错误 reject。
+#
+# 配套改动（不在本文件里，属于 DSH 本体补丁，务必知悉）：
+#   为了让**点侧栏「新对话」时默认落在「日常使用」**，改了 DSH 的
+#   app/node_modules/@deepseek-ai/dsh-client-ui-workspace/lib/client.js
+#   里 startSession() 的 target 计算，按 canonical path 结尾匹配 daily-use。
+#   该文件已被 DSH 覆盖过就会失效 —— 备份与重打方法见同目录的
+#   client.js.bak-daily-default-* 与下方说明。
+# 卸载：删除下面这条 insert 即可（补丁需另行还原，见上）。
+- insert:
+    - id: daily-workspace
+      name: dsh-daily-workspace
+
+# 窗口背景（dsh-wallpaper）—— 2026-09-14 启用。
+#
+# 干什么：给 Web GUI 设纯色 / 渐变 / 图片壁纸，并让侧栏与浮层半透明以透出背景。
+# 入口在「设置 → 通用」第三行（与官方「外观」「正文字号」并排），
+# 用的就是 DSH 官方主题自己用的那个槽位 settings.general.item。
+#
+# 为什么走官方路子而不是注入 CSS 抢 DOM：
+#   ① 背景色走 ctx.theme.overrideTokens()，它要求 light/dark 成对，
+#      切配色时不会出现"只对一套有效"；
+#   ② 壁纸图本身用插件自有的 <style>（令牌表达不了图片）；
+#   ③ 首屏由宿主经 webserver/index-inject 注入，避免加载后闪一下才变。
+#
+# 壁纸文件存在 %DSH_HOME%\wallpapers\ ，由插件上传通道写入（文件名宿主生成，
+# 用户不提供任何路径），因此没有路径穿越面。
+#
+# 诊断：GET /dsh-wallpaper/health
+# 卸载：见下方「迁移到 bundle 通道」的说明。
+#
+# ⚠️ 2026-09-14 迁移到 **bundle 通道**：这里的**手动 mount 行已删除**。
+#    现在由插件包自带的 cordis.patch.yml（package.json 的 dsh.bundle.patch）
+#    提供这条 insert，profile 启动时自动合并 —— profile package.json 的
+#    `dsh.profile.bundles` 里已经有 "dsh-wallpaper"。
+#
+#    为什么必须删掉这一行：两处同时挂载 = **双重挂载**，
+#    宿主半会注册两次同名路由 ⇒ 启动失败
+#    （`webserver: duplicate exact route "/dsh-wallpaper/config"`）。
+#    dsh-better-sidebar 的补丁注释里也专门警告过这一点。
+#
+#    要卸载：运行插件目录里的 uninstall.ps1，或手工从
+#    profile package.json 的 dsh.profile.bundles 里删掉 "dsh-wallpaper"。
+#
+# 2026-09-14：本插件曾被看门狗自动禁用一次（`- id: wallpaper` / `disabled: true`），
+# 原因是宿主半在同一个 path 上注册了两条 exact 路由；已把 GET/POST 合并成一条，
+# 故移除该禁用条目。
+

@@ -1,0 +1,230 @@
+# ==============================================================================
+# D-STATION CI — fast pre-flight only
+# ==============================================================================
+#
+# IMPORTANT: the full Electron build is deliberately NOT run in CI.
+#
+# Assembling the application requires a large Windows toolchain download
+# (Electron x64 runtime plus native Node modules such as node-pty and libsql).
+# That download dominates CI runtime and fails for reasons unrelated to the
+# change under review, so it is not a useful gate here. The full build is run
+# locally, from a real Windows x64 machine, via scripts/build.ps1.
+#
+# What this workflow does instead is cheap and fast: syntax-check every shell
+# and plugin JavaScript file, run the plugin test suites that exist, and scan
+# for accidentally committed credentials. Treat it as a pre-flight, not as
+# proof that the application still builds or runs.
+# ==============================================================================
+
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: Syntax check (shell + plugins)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: node --check on every .js file under shell/ and plugins/
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $files = @()
+          foreach ($root in @('shell', 'plugins')) {
+            if (-not (Test-Path $root)) {
+              Write-Host "::warning::Directory '$root' not found; skipping."
+              continue
+            }
+            $files += Get-ChildItem -Path $root -Recurse -File -Filter '*.js' |
+              Where-Object { $_.FullName -notmatch '[\\/]node_modules[\\/]' }
+          }
+
+          if ($files.Count -eq 0) {
+            Write-Host 'No .js files found under shell/ or plugins/.'
+            exit 0
+          }
+
+          Write-Host "Checking $($files.Count) JavaScript file(s)..."
+          $failed = @()
+
+          foreach ($file in $files) {
+            $rel = Resolve-Path -Relative $file.FullName
+            node --check $file.FullName
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "::error file=$rel::node --check failed for $rel"
+              $failed += $rel
+            }
+          }
+
+          if ($failed.Count -gt 0) {
+            Write-Host ''
+            Write-Host "Syntax check failed for $($failed.Count) file(s):"
+            $failed | ForEach-Object { Write-Host "  - $_" }
+            exit 1
+          }
+
+          Write-Host 'All JavaScript files passed node --check.'
+
+  plugin-tests:
+    name: Plugin tests
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run test/run-tests.mjs for each plugin that has one
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          if (-not (Test-Path 'plugins')) {
+            Write-Host 'No plugins/ directory; nothing to test.'
+            exit 0
+          }
+
+          # Only directories directly under plugins/ are plugin packages.
+          # Note: scoped packages live one level deeper (for example
+          # plugins/@michengai/<name>) and are covered by the recursive search
+          # for the test entry point below.
+          $pluginDirs = Get-ChildItem -Path 'plugins' -Directory |
+            Where-Object { $_.Name -notlike '@*' }
+
+          $scopedRoots = @()
+          foreach ($scope in (Get-ChildItem -Path 'plugins' -Directory | Where-Object { $_.Name -like '@*' })) {
+            $scopedRoots += Get-ChildItem -Path $scope.FullName -Directory
+          }
+          $pluginDirs = @($pluginDirs) + @($scopedRoots)
+
+          $ran = 0
+          $failed = @()
+
+          foreach ($dir in $pluginDirs) {
+            $entry = Join-Path $dir.FullName 'test/run-tests.mjs'
+            if (-not (Test-Path $entry)) {
+              continue
+            }
+
+            $ran++
+            Write-Host "::group::Testing $($dir.Name)"
+            Push-Location $dir.FullName
+            try {
+              node test/run-tests.mjs
+              if ($LASTEXITCODE -ne 0) {
+                Write-Host "::error::Tests failed for $($dir.Name)"
+                $failed += $dir.Name
+              }
+            } finally {
+              Pop-Location
+            }
+            Write-Host '::endgroup::'
+          }
+
+          Write-Host ''
+          Write-Host "Ran tests for $ran plugin(s)."
+
+          if ($failed.Count -gt 0) {
+            Write-Host "Failed: $($failed -join ', ')"
+            exit 1
+          }
+
+          Write-Host 'All plugin test suites passed.'
+
+  secret-scan:
+    name: Secret scan
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Scan for common secret shapes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          # Common credential shapes: provider-prefixed API keys, GitHub tokens,
+          # AWS access key IDs, and PEM private key headers.
+          #
+          # The API-key pattern requires a real key body (20+ chars) rather than the
+          # bare "sk-" prefix. A bare prefix matches ordinary prose and the scanner's
+          # own documentation -- e.g. a skill note saying "this token is not sk-shaped"
+          # -- which would fail the build for no reason.
+          $patterns = @(
+            'sk-[A-Za-z0-9_\-]{20,}',
+            'ghp_[A-Za-z0-9]{20,}',
+            'AKIA[0-9A-Z]{12,}',
+            '-----BEGIN.*PRIVATE KEY-----'
+          )
+
+          # Files that legitimately contain the pattern strings themselves, or
+          # that produce random false positives:
+          #   - ci.yml          : this scanner cannot scan its own pattern list
+          #   - CONTRIBUTING.md : documents the shapes contributors must not commit
+          #   - SECURITY.md     : documents the same shapes
+          $allowlist = @(
+            'ci.yml',
+            'CONTRIBUTING.md',
+            'SECURITY.md',
+            'CODE_OF_CONDUCT.md'
+          )
+
+          # Binary assets are skipped: a literal "sk-" occurs by chance inside
+          # compressed image data, which would fail the job for no reason.
+          $binaryExtensions = @(
+            '.png', '.jpg', '.jpeg', '.gif', '.ico', '.bmp', '.webp', '.avif',
+            '.exe', '.dll', '.node', '.zip', '.7z', '.gz', '.woff', '.woff2',
+            '.ttf', '.otf', '.pdf', '.mp3', '.mp4', '.wav', '.wasm'
+          )
+
+          $files = Get-ChildItem -Path . -Recurse -File |
+            Where-Object { $_.FullName -notmatch '[\\/]node_modules[\\/]' } |
+            Where-Object { $_.FullName -notmatch '[\\/]\.git[\\/]' } |
+            Where-Object { $allowlist -notcontains $_.Name } |
+            Where-Object { $binaryExtensions -notcontains $_.Extension.ToLowerInvariant() } |
+            Where-Object { $_.Length -lt 2MB }
+
+          Write-Host "Scanning $($files.Count) file(s) for $($patterns.Count) pattern(s)..."
+
+          $hits = @()
+
+          foreach ($file in $files) {
+            foreach ($pattern in $patterns) {
+              $matches = Select-String -Path $file.FullName -Pattern $pattern -ErrorAction SilentlyContinue
+              foreach ($m in $matches) {
+                $rel = Resolve-Path -Relative $file.FullName
+                $hits += "$rel`:$($m.LineNumber): matched '$pattern'"
+                Write-Host "::error file=$rel,line=$($m.LineNumber)::Possible secret matching '$pattern'"
+              }
+            }
+          }
+
+          if ($hits.Count -gt 0) {
+            Write-Host ''
+            Write-Host 'Potential secrets found:'
+            $hits | ForEach-Object { Write-Host "  - $_" }
+            Write-Host ''
+            Write-Host 'If any of these is a real credential, revoke it immediately and rewrite history.'
+            exit 1
+          }
+
+          Write-Host 'No potential secrets found.'
