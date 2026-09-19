@@ -70,7 +70,7 @@ it surfaced, not a test-workaround.
   touched.
 - **`dsh-media-preview` tests compared paths as strings.** Windows gives one directory
   several equivalent spellings; the runner's `TEMP` is an 8.3 short name
-  (`C:\Users\RUNNER~1\...`) while the plugin emits the long form. Note that
+  (`C:\Users\<user>\...`) while the plugin emits the long form. Note that
   `fs.realpathSync` does *not* expand short names — `fs.realpathSync.native` does.
   Comparisons are now by filesystem identity (`st_dev`/`st_ino`) where it matters.
 - **The CI secret scanner flagged its own source.** `scripts/check-secrets.mjs`

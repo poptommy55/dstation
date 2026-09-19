@@ -21,8 +21,8 @@ import { apply } from '../index.js';
 
 /* 路径比较必须按**文件系统身份**来，不能按字符串来。
    Windows 上同一条路径有多种等价写法：8.3 短名与长名、目录符号链接、反斜杠与正斜杠、
-   盘符大小写。GitHub 的 runner 恰好命中：它的 TEMP 是 C:\Users\RUNNER~1\... 短名，
-   而插件输出的允许根是 C:\Users\runneradmin\... 长名 —— 本机通过、CI 假失败的根源。
+   盘符大小写。GitHub 的 runner 恰好命中：它的 TEMP 是 C:\Users\<user>\... 短名，
+   而插件输出的允许根是 C:\Users\<user>\... 长名 —— 本机通过、CI 假失败的根源。
 
    ⚠️ 坑：realpathSync（JS 版）**不展开 8.3 短名**，实测 C:\PROGRA~1 原样返回，
    所以第一版用它修的没生效。要用 realpathSync.native（走 GetFinalPathNameByHandleW）。 */
@@ -113,7 +113,7 @@ async function serve(ctx, routes) {
 function fixture() {
   /* realpathSync.native 不是可选的，而且必须用 .native。
      普通 realpathSync 在 Windows 上**不展开 8.3 短名**：GitHub runner 的 TEMP 是
-     C:\Users\RUNNER~1\... 短名，插件输出的是 C:\Users\runneradmin\... 长名，
+     C:\Users\<user>\... 短名，插件输出的是 C:\Users\<user>\... 长名，
      于是凡是拿 f.dir 派生出去和插件输出比的地方都假失败（日志里打印的却是插件那份
      **看起来完全正确**的路径，极易误判成插件有问题）。
      .native 走 GetFinalPathNameByHandleW，返回规范长名，两边才对得上。 */
