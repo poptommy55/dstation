@@ -426,21 +426,32 @@ function stampForName(d = new Date()) {
  */
 export function buildAgentBundle(root, ids, opts = {}) {
   if (!root) throw new Error('找不到 DSH 主目录，无法定位 .agent-presets');
-  if (!existsSync(root)) throw new Error(`智能体目录不存在：${root}（这台机器上还没有用户智能体）`);
-
-  const wanted = Array.isArray(ids) && ids.length ? ids : defaultPackableIds(listPresets(root));
-  if (!wanted.length) throw new Error('没有可打包的智能体（列表为空）');
 
   /* id 名单来自客户端，**必须**当成不可信输入：
      它会被拼进文件系统路径与 zip 内路径。 */
-  const safeIds = [];
-  for (const raw of wanted) {
-    const id = String(raw || '');
-    if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(id)) {
-      throw new Error(`智能体 id 不合法：${JSON.stringify(id)}`);
+  const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+  function normalizeIds(list) {
+    const out = [];
+    for (const raw of list) {
+      const id = String(raw || '');
+      if (!ID_RE.test(id)) throw new Error(`智能体 id 不合法：${JSON.stringify(id)}`);
+      if (!out.includes(id)) out.push(id);
     }
-    if (!safeIds.includes(id)) safeIds.push(id);
+    return out;
   }
+
+  /* ⚠️ 顺序有讲究：**显式传入**的 id 必须先在下面过形状闸门，再去看目录在不在。
+     反过来写的话，在还没有任何用户智能体的机器上（全新安装就是这样）目录检查会
+     先抛错，路径穿越 / 绝对路径这类**形状非法**的 id 就永远走不到闸门 ——
+     客户端收到的是 500「智能体目录不存在」而不是 400「id 不合法」，
+     这条安全闸门也就失去了被验证的机会（CI 上就是这么暴露的）。 */
+  const explicit = Array.isArray(ids) && ids.length > 0;
+  const explicitIds = explicit ? normalizeIds(ids) : null;
+
+  if (!existsSync(root)) throw new Error(`智能体目录不存在：${root}（这台机器上还没有用户智能体）`);
+
+  const safeIds = explicit ? explicitIds : normalizeIds(defaultPackableIds(listPresets(root)));
+  if (!safeIds.length) throw new Error('没有可打包的智能体（列表为空）');
 
   const templates = ['install.ps1.tpl', '一键安装.cmd.tpl', '安装说明.txt.tpl'];
   for (const t of templates) {

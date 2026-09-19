@@ -246,8 +246,10 @@ export function apply(ctx) {
           res.end(r.data);
         } catch (err) {
           const msg = String((err && err.message) || err);
-          /* 输入不合法 -> 400；其余按 500。这样界面能区分"你选错了"和"我坏了"。 */
-          const status = /不合法|找不到智能体|没有可打包|缺少 agent\.cordis|是空的|没有任何 name/.test(msg)
+          /* 输入不合法 -> 400；其余按 500。这样界面能区分"你选错了"和"我坏了"。
+             「智能体目录不存在」也算 400：全新安装上还没有任何用户智能体，
+             调用方要的东西就是不存在，这是请求侧的事实，不是插件坏了。 */
+          const status = /不合法|找不到智能体|智能体目录不存在|没有可打包|缺少 agent\.cordis|是空的|没有任何 name/.test(msg)
             ? 400
             : 500;
           sendJson(res, status, { ok: false, build: BUILD, error: msg });
