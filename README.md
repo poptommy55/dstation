@@ -6,6 +6,7 @@ A Windows desktop application that wraps the open-source **DeepSeek Harness (DSH
 runtime in an Electron shell, with a curated set of first-party plugins, agent skills, and a
 self-hosted over-the-air update mechanism.
 
+[![CI](https://github.com/poptommy55/dstation/actions/workflows/ci.yml/badge.svg)](https://github.com/poptommy55/dstation/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-lightgrey)
 ![Shell](https://img.shields.io/badge/Electron-44.2.0-47848F)

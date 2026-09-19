@@ -5,6 +5,7 @@
 一个 Windows 桌面应用：用 Electron 外壳封装开源的 **DeepSeek Harness（DSH）** 智能体运行时，
 并附加一组第一方插件、智能体技能，以及一套自建的在途升级（OTA）机制。
 
+[![CI](https://github.com/poptommy55/dstation/actions/workflows/ci.yml/badge.svg)](https://github.com/poptommy55/dstation/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache--2.0-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11%20x64-lightgrey)
 ![Shell](https://img.shields.io/badge/Electron-44.2.0-47848F)
