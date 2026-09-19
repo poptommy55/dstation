@@ -19,6 +19,17 @@ import { join } from 'node:path';
 
 import { apply } from '../index.js';
 
+/* 路径比较必须按**文件系统身份**来，不能按字符串来。
+   Windows 上同一条路径有多种等价写法：8.3 短名（C:\Users\RUNNER~1\...）与长名、
+   目录符号链接、反斜杠与正斜杠、盘符大小写。GitHub 的 runner 恰好会命中这类差异，
+   结果是本机通过、CI 上假失败 —— 而且失败信息里打印的是插件那份**看起来完全正确**
+   的路径，极易被误判成插件有 bug。先各自 realpath 再比，两边才是同一个东西。 */
+function canon(p) {
+  let s = String(p);
+  try { s = realpathSync(s); } catch { /* 路径可能尚不存在，保持原样 */ }
+  return s.replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+}
+
 /** 最小 Cordis ctx 桩：只提供 index.js 真正用到的那几个面。 */
 function stubContext({ roots = [], withTools = false } = {}) {
   const routes = new Map();
@@ -138,8 +149,8 @@ test('e2e: /allow 正常放行工作区内的媒体并给出 URL', async () => {
     // 所以数量不固定；要断言的是"被测工作区确实在名单里"且格式统一。
     assert.ok(body.roots.length >= 1, '至少要有一个允许根');
     assert.ok(
-      body.roots.some((r) => r.toLowerCase() === f.dir.replace(/\\/g, '/').toLowerCase()),
-      `被测工作区应出现在允许根里：${JSON.stringify(body.roots)}`
+      body.roots.some((r) => canon(r) === canon(f.dir)),
+      `被测工作区应出现在允许根里：期望 ${canon(f.dir)}；实际 ${JSON.stringify(body.roots.map(canon))}`
     );
     assert.equal(body.roots.some((r) => r.includes('\\')), false, '允许根统一用正斜杠');
   } finally {
@@ -308,7 +319,7 @@ test('tool: media_preview 注册到 tools 服务，并放行工作区内的媒�
   assert.equal(typeof tool.output.render, 'function');
 
   const result = await tool.execute({ paths: [f.mp4, f.png, f.txt, 'relative.png'] }, {});
-  assert.deepEqual(result.shown, [f.mp4.replace(/\\/g, '/'), f.png.replace(/\\/g, '/')]);
+  assert.deepEqual(result.shown.map(canon), [canon(f.mp4), canon(f.png)]);
   assert.equal(result.rejected.length, 2);
   assert.equal(result.rejected[0].path, f.txt);
   assert.equal(result.rejected[1].path, 'relative.png');
