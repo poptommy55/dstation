@@ -1,14 +1,5 @@
 # Contributor Covenant Code of Conduct
 
-> **NOTE TO THE MAINTAINER — ACTION REQUIRED BEFORE PUBLISHING**
->
-> The contact address below is a placeholder: **`conduct@example.com`**.
-> Replace every occurrence of `conduct@example.com` in this file with a real, monitored
-> address (or a private reporting form) before this repository is made public. An
-> unreachable enforcement contact makes this policy meaningless.
->
-> This note is not part of the Contributor Covenant. Delete it once the address is real.
-
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our
@@ -69,7 +60,7 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-**conduct@example.com**.
+**popsoho@gmail.com**.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the

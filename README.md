@@ -2,6 +2,8 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+<img src="docs/images/hero.png" alt="D-STATION — Windows desktop shell for the DeepSeek Harness agent runtime" width="100%">
+
 A Windows desktop application that wraps the open-source **DeepSeek Harness (DSH)** agent
 runtime in an Electron shell, with a curated set of first-party plugins, agent skills, and a
 self-hosted over-the-air update mechanism.
@@ -89,11 +91,13 @@ environment variable.
 
 ## Screenshot
 
-```
-<!-- TODO: add screenshot of the main window -->
-```
+![The D-STATION main window on first launch](docs/images/main-window.png)
 
-*Placeholder: a screenshot of the D-STATION main window belongs here.*
+The D-STATION main window immediately after a first launch, with no conversation started and no
+model key configured — the state a new user actually sees. The sidebar, the workspace switcher,
+the composer, and the model selector are the shell's own chrome around the DSH runtime's web UI.
+
+You supply the model key in **Settings → Models**; nothing ships with a key baked in.
 
 ---
 

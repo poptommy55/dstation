@@ -2,6 +2,8 @@
 
 [English](README.md) | **简体中文**
 
+<img src="docs/images/hero.png" alt="D-STATION — 封装 DeepSeek Harness 智能体运行时的 Windows 桌面外壳" width="100%">
+
 一个 Windows 桌面应用：用 Electron 外壳封装开源的 **DeepSeek Harness（DSH）** 智能体运行时，
 并附加一组第一方插件、智能体技能，以及一套自建的在途升级（OTA）机制。
 
@@ -82,11 +84,12 @@ D-STATION 是**给一个已有的智能体运行时套的桌面外壳**，它本
 
 ## 截图
 
-```
-<!-- TODO: add screenshot of the main window -->
-```
+![首次启动时的 D-STATION 主窗口](docs/images/main-window.png)
 
-*占位：此处应放置一张 D-STATION 主窗口的截图。*
+这是首次启动后立刻截下的主窗口：还没有任何会话，也还没有配置模型 KEY——新用户真正会看到的状态。
+侧边栏、工作区切换、输入区与模型选择器都是外壳为 DSH 运行时网页界面包上的自有界面。
+
+模型 KEY 在**设置 → 模型**里自行填写；发行包与仓库里不含任何 KEY。
 
 ---
 

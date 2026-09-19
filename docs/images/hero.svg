@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="D-STATION">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#080D18"/>
+      <stop offset="55%" stop-color="#0F1830"/>
+      <stop offset="100%" stop-color="#141E3C"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#4D8DFF" stop-opacity="0.42"/>
+      <stop offset="55%" stop-color="#4D8DFF" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#4D8DFF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wordmark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="70%" stop-color="#D6E4FF"/>
+      <stop offset="100%" stop-color="#8FB4FF"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5B9BFF" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#7C5CFF" stop-opacity="0.35"/>
+    </linearGradient>
+    <linearGradient id="chipbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.04"/>
+    </linearGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.5" cy="1.5" r="1.1" fill="#7FA6E8" opacity="0.13"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="320" fill="url(#bg)"/>
+  <rect width="1280" height="320" fill="url(#dots)"/>
+  <ellipse cx="1002" cy="160" rx="330" ry="250" fill="url(#glow)"/>
+
+  <!-- station mark: concentric rings with orbiting agent nodes -->
+  <g transform="translate(1002 160)">
+    <circle r="118" fill="none" stroke="url(#ring)" stroke-width="1.5" opacity="0.55"/>
+    <circle r="92" fill="none" stroke="#5B9BFF" stroke-width="1" opacity="0.30"/>
+    <circle r="66" fill="none" stroke="#8FB4FF" stroke-width="1" opacity="0.20"
+            stroke-dasharray="4 7"/>
+    <rect x="-27" y="-27" width="54" height="54" rx="15"
+          fill="#0E1830" stroke="#6EA8FF" stroke-width="2" opacity="0.95"/>
+    <path d="M-9 -11 L3 -11 L3 11 L-9 11 Z" fill="#BFD6FF" opacity="0.95"/>
+    <path d="M8 -11 L14 -11 L14 11 L8 11 Z" fill="#6EA8FF" opacity="0.9"/>
+    <circle cx="0" cy="-118" r="7.5" fill="#8FB4FF"/>
+    <circle cx="102" cy="-59" r="6" fill="#6EA8FF" opacity="0.85"/>
+    <circle cx="102" cy="59" r="5" fill="#6EA8FF" opacity="0.6"/>
+    <circle cx="0" cy="118" r="5" fill="#7C5CFF" opacity="0.7"/>
+    <circle cx="-102" cy="59" r="5" fill="#6EA8FF" opacity="0.5"/>
+    <circle cx="-102" cy="-59" r="5" fill="#8FB4FF" opacity="0.7"/>
+    <circle cx="0" cy="-92" r="3.5" fill="#FFFFFF" opacity="0.85"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="72" y="146" font-family="'Segoe UI','Microsoft YaHei',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif"
+        font-size="76" font-weight="700" letter-spacing="1.5" fill="url(#wordmark)">D-STATION</text>
+
+  <text x="76" y="192" font-family="'Segoe UI','Microsoft YaHei',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif"
+        font-size="21" font-weight="400" fill="#93A9CC" letter-spacing="0.2">Windows desktop shell for the DeepSeek Harness agent runtime</text>
+
+  <!-- chips -->
+  <g font-family="'Segoe UI','Microsoft YaHei',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif"
+     font-size="14" font-weight="600" fill="#B9CCE9">
+    <rect x="76" y="228" width="120" height="32" rx="16" fill="url(#chipbg)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+    <text x="100" y="249">Electron 44</text>
+
+    <rect x="208" y="228" width="132" height="32" rx="16" fill="url(#chipbg)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+    <text x="232" y="249">12 plugins</text>
+
+    <rect x="352" y="228" width="126" height="32" rx="16" fill="url(#chipbg)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+    <text x="376" y="249">5 skills</text>
+
+    <rect x="490" y="228" width="150" height="32" rx="16" fill="url(#chipbg)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+    <text x="514" y="249">Apache-2.0</text>
+
+    <rect x="652" y="228" width="150" height="32" rx="16" fill="url(#chipbg)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+    <text x="676" y="249">Win 10/11 x64</text>
+  </g>
+
+  <rect x="0" y="316" width="1280" height="4" fill="#4D8DFF" opacity="0.5"/>
+</svg>
